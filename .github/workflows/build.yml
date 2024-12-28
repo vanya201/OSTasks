@@ -20,17 +20,17 @@ jobs:
 
     - name: Set up environment for RPM
       run: |
-        mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+        mkdir -p /home/runner/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
         
     - name: Prepare source for RPM
       run: |
         mkdir FileCounter-1.0
         cp count_files.sh FileCounter-1.0/
-        tar -czvf ~/rpmbuild/SOURCES/FileCounter-1.0.tar.gz FileCounter-1.0
+        tar -czvf /home/runner/rpmbuild/SOURCES/FileCounter-1.0.tar.gz FileCounter-1.0
 
     - name: Create RPM SPEC file
       run: |
-        cat << EOF > ~/rpmbuild/SPECS/FileCounter.spec
+        cat << EOF > /home/runner/rpmbuild/SPECS/FileCounter.spec
         Name: FileCounter
         Version: 1.0
         Release: 1%{?dist}
@@ -58,7 +58,7 @@ jobs:
 
     - name: Build RPM package
       run: |
-        rpmbuild -ba ~/rpmbuild/SPECS/FileCounter.spec
+        rpmbuild -ba /home/runner/rpmbuild/SPECS/FileCounter.spec
 
     - name: Create DEB structure
       run: |
@@ -104,7 +104,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ~/rpmbuild/RPMS/x86_64/*.rpm
+        asset_path: /home/runner/rpmbuild/RPMS/x86_64/*.rpm
         asset_name: FileCounter-1.0-1.rpm
         asset_content_type: application/x-rpm
 
