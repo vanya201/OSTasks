@@ -1,74 +1,66 @@
 name: Build RPM and DEB Packages
-
 on:
   push:
     branches: [ '**' ]
   pull_request:
     branches: [ '**' ]
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v3
-
     - name: Install required tools
       run: |
         sudo apt-get update
         sudo apt-get install -y rpm dpkg-dev
-
     - name: Set up environment for RPM
       run: |
-        mkdir -p /home/runner/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
-
+        mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+        
     - name: Prepare source for RPM
       run: |
-        mkdir /home/runner/FileCounter-1.0
-        cp count_files.sh /home/runner/FileCounter-1.0/
-        tar -czvf /home/runner/rpmbuild/SOURCES/FileCounter-1.0.tar.gz -C /home/runner FileCounter-1.0
-
+        mkdir FileCounter-1.0
+        cp count_files.sh FileCounter-1.0/
+        tar -czvf ~/rpmbuild/SOURCES/FileCounter-1.0.tar.gz FileCounter-1.0
     - name: Create RPM SPEC file
       run: |
-        cat << EOF > /home/runner/rpmbuild/SPECS/FileCounter.spec
+        cat << EOF > ~/rpmbuild/SPECS/FileCounter.spec
         Name: FileCounter
         Version: 1.0
         Release: 1%{?dist}
         Summary: A simple shell script to count files in /etc
         License: MIT
         Source0: %{name}-%{version}.tar.gz
-
+        
         %description
         This package contains a shell script for counting files in the /etc directory.
-
+        
         %prep
         %setup -q
-
+        
         %build
-
+        
         %install
         mkdir -p %{buildroot}/usr/bin
         install -m 755 count_files.sh %{buildroot}/usr/bin/count_files.sh
-
+        
         %files
         /usr/bin/count_files.sh
-
+        
         %changelog
         EOF
-
     - name: Build RPM package
       run: |
-        rpmbuild -ba /home/runner/rpmbuild/SPECS/FileCounter.spec
-
+        rpmbuild -ba ~/rpmbuild/SPECS/FileCounter.spec
     - name: Create DEB structure
       run: |
-        mkdir -p /home/runner/FileCounter_1.0-1/usr/bin
-        cp count_files.sh /home/runner/FileCounter_1.0-1/usr/bin/
-        mkdir /home/runner/FileCounter_1.0-1/DEBIAN
-
+        mkdir -p ~/FileCounter_1.0-1/usr/bin
+        cp count_files.sh ~/FileCounter_1.0-1/usr/bin/
+        mkdir ~/FileCounter_1.0-1/DEBIAN
     - name: Create DEB control file
       run: |
-        cat << EOF > /home/runner/FileCounter_1.0-1/DEBIAN/control
+        cat << EOF > ~/FileCounter_1.0-1/DEBIAN/control
         Package: FileCounter
         Version: 1.0-1
         Section: utils
@@ -78,26 +70,22 @@ jobs:
         Description: A simple shell script to count files in /etc
          This package contains a shell script for counting files in the /etc directory.
         EOF
-
     - name: Set permissions for DEB
       run: |
-        chmod 755 /home/runner/FileCounter_1.0-1/usr/bin/count_files.sh
-
+        chmod 755 ~/FileCounter_1.0-1/usr/bin/count_files.sh
     - name: Build DEB package
       run: |
-        dpkg-deb --build /home/runner/FileCounter_1.0-1
-
-    - name: Upload RPM as artifact
+        dpkg-deb --build ~/FileCounter_1.0-1
+    - name: Upload RPM package
       uses: actions/upload-artifact@v3
       with:
-        name: file-counter-rpm
-        path: /home/runner/rpmbuild/RPMS/x86_64/file-counter-1.0-1.rpm
-
-    - name: Upload DEB as artifact
+        name: FileCounter-rpm
+        path: ~/rpmbuild/RPMS/x86_64/file-counter-1.0-1.rpm
+    - name: Upload DEB package
       uses: actions/upload-artifact@v3
       with:
-        name: file-counter-deb
-        path: /home/runner/file-counter-1.0-1.deb
+        name: FileCounter-deb
+        path: ~/FileCounter_1.0-1.deb
 
     - name: Create GitHub Release
       id: create_release
@@ -116,7 +104,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /home/runner/rpmbuild/RPMS/x86_64/file-counter-1.0-1.rpm
+        asset_path: ~/rpmbuild/RPMS/x86_64/file-counter-1.0-1.rpm
         asset_name: file-counter-1.0-1.rpm
         asset_content_type: application/x-rpm
 
@@ -126,6 +114,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /home/runner/file-counter-1.0-1.deb
-        asset_name: file-counter-1.0-1.deb
+        asset_path: ~/FileCounter_1.0-1.deb
+        asset_name: FileCounter_1.0-1.deb
         asset_content_type: application/x-debian-package
