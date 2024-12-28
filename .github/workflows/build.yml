@@ -80,7 +80,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: FileCounter-rpm
-        path: ~/rpmbuild/RPMS/x86_64/file-counter-1.0-1.rpm
+        path: ~/rpmbuild/RPMS/x86_64/*.rpm
     - name: Upload DEB package
       uses: actions/upload-artifact@v3
       with:
