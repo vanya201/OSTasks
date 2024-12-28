@@ -2,8 +2,9 @@ name: Build RPM and DEB
 
 on:
   push:
-      tags:
-      - "*.*.*"
+    branches: [ '**' ]
+  pull_request:
+    branches: [ '**' ]
 
 jobs:
   build:
