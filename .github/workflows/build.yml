@@ -104,7 +104,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ~/rpmbuild/RPMS/x86_64/*.rpm
+        asset_path: /home/runner/rpmbuild/RPMS/x86_64/*.rpm
         asset_name: file-counter-1.0-1.rpm
         asset_content_type: application/x-rpm
 
