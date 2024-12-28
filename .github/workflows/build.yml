@@ -87,6 +87,18 @@ jobs:
       run: |
         dpkg-deb --build ~/FileCounter_1.0-1
 
+    - name: Upload RPM as artifact
+      uses: actions/upload-artifact@v3
+      with:
+       name: file-counter-rpm
+       path: /home/runner/rpmbuild/RPMS/x86_64/file-counter-1.0-1.rpm 
+
+    - name: Upload DEB as artifact
+      uses: actions/upload-artifact@v3
+      with:
+       name: file-counter-deb
+       path: file-counter-1.0.deb 
+       
     - name: Create GitHub Release
       id: create_release
       uses: actions/create-release@v1
@@ -104,8 +116,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: /home/runner/rpmbuild/RPMS/x86_64/*.rpm
-        asset_name: FileCounter-1.0-1.rpm
+        asset_path: /home/runner/rpmbuild/RPMS/x86_64/file-counter-1.0-1.rpm 
+        asset_name: file-counter-1.0-1.rpm
         asset_content_type: application/x-rpm
 
     - name: Upload DEB package to Release
@@ -114,6 +126,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ~/FileCounter_1.0-1.deb
-        asset_name: FileCounter-1.0-1.deb
+        asset_path: ~/file-counter-1.0.deb
+        asset_name: file-counter-1.0.deb 
         asset_content_type: application/x-debian-package
