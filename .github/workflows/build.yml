@@ -98,3 +98,18 @@ jobs:
       with:
         name: FileCounter-deb
         path: ~/FileCounter_1.0-1.deb
+
+
+    - name: Upload RPM package to GitHub Packages
+      run: |
+        curl -X POST -H "Content-Type: application/octet-stream" \
+             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+             --data-binary @~/rpmbuild/RPMS/x86_64/file-counter-1.0-1.x86_64.rpm \
+             https://uploads.github.com/repos/${{ github.repository }}/packages/rpm/file-counter-1.0-1.x86_64.rpm
+
+    - name: Upload DEB package to GitHub Packages
+      run: |
+        curl -X POST -H "Content-Type: application/octet-stream" \
+             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+             --data-binary @~/FileCounter_1.0-1.deb \
+             https://uploads.github.com/repos/${{ github.repository }}/packages/deb/file-counter-1.0-1.deb
