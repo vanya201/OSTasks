@@ -76,13 +76,25 @@ jobs:
     - name: Build DEB package
       run: |
         dpkg-deb --build ~/FileCounter_1.0-1
-    - name: Upload RPM package
-      uses: actions/upload-artifact@v3
+
+
+- name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: FileCounter-rpm
-        path: ~/rpmbuild/RPMS/x86_64/*.rpm
-    - name: Upload DEB package
-      uses: actions/upload-artifact@v3
+        tag_name: "v${{ github.run_number }}"
+        release_name: "Release ${{ github.run_number }}"
+        draft: false
+        prerelease: false
+
+    - name: Upload RPM to GitHub Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: FileCounter-deb
-        path: ~/FileCounter_1.0-1.deb
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: /home/runner/rpmbuild/RPMS/x86_64/FileCounter-1.0-1.x86_64.rpm
+        asset_name: FileCounter-1.0-1.x86_64.rpm
+        asset_content_type: application/x-rpm
