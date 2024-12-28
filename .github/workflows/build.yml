@@ -87,29 +87,33 @@ jobs:
       run: |
         dpkg-deb --build ~/FileCounter_1.0-1
 
-    - name: Upload RPM package
-      uses: actions/upload-artifact@v3
+    - name: Create GitHub Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: FileCounter-rpm
-        path: ~/rpmbuild/RPMS/x86_64/*.rpm
+        tag_name: "v${{ github.run_number }}"  # Можно заменить на версию вашего пакета
+        release_name: "Release ${{ github.run_number }}"
+        draft: false
+        prerelease: false
 
-    - name: Upload DEB package
-      uses: actions/upload-artifact@v3
+    - name: Upload RPM to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: FileCounter-deb
-        path: ~/FileCounter_1.0-1.deb
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ~/rpmbuild/RPMS/x86_64/file-counter-1.0-1.x86_64.rpm
+        asset_name: file-counter-1.0-1.x86_64.rpm
+        asset_content_type: application/x-rpm
 
-
-    - name: Upload RPM package to GitHub Packages
-      run: |
-        curl -X POST -H "Content-Type: application/octet-stream" \
-             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-             --data-binary @~/rpmbuild/RPMS/x86_64/file-counter-1.0-1.x86_64.rpm \
-             https://uploads.github.com/repos/${{ github.repository }}/packages/rpm/file-counter-1.0-1.x86_64.rpm
-
-    - name: Upload DEB package to GitHub Packages
-      run: |
-        curl -X POST -H "Content-Type: application/octet-stream" \
-             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-             --data-binary @~/FileCounter_1.0-1.deb \
-             https://uploads.github.com/repos/${{ github.repository }}/packages/deb/file-counter-1.0-1.deb
+    - name: Upload DEB to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ~/FileCounter_1.0-1.deb
+        asset_name: file-counter-1.0-1.deb
+        asset_content_type: application/x-debian-package
